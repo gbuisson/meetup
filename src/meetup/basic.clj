@@ -12,7 +12,7 @@
         p (keywordize-keys (:params request))]
 
     (if (and (= (:request-method request) :post)
-             (= (:uri request) "/order/pizza"))
+             (= (:uri request) "/order-pizza"))
 
       (if ((keyword(:recipe p)) recipes)
         (if-not (> (read-string (:count p)) max-count)
