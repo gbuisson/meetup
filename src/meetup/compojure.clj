@@ -8,34 +8,29 @@
 
 (defonce orders (atom {}))
 
-(defn order-pizza-handler [params]
-  (let [recipes #{:hawaian :italian :vegan}
-        max-count 5
-        p (keywordize-keys params)]
+(def recipes #{:hawaian :italian :vegan})
+      
+(def max-count 5)
+        
 
-      (if ((keyword(:recipe p)) recipes)
-        (if-not (> (read-string (:count p)) max-count)
-          (do (swap! orders into {(keyword (str (java.util.UUID/randomUUID))) p})
-            {:status 200
-               :body "your pizza will be available shortly"})
-          {:status 404
-           :body "you ordered too many pizzas"})
-
-        {:status 404
-         :body "the requested recipe does not exists"})))
-
+(defn handle-order [pizza nb]
+  (cond (not (contains? pizza recipe)) {:status 404 :body "the requested recipe does not exists"}
+        (> nb max-count) {:status 503 :body "you ordered too many pizzas"}
+        :else (do (swap! orders into {(keyword (str (java.util.UUID/randomUUID))) p})
+                  {:status 200
+                   :body "your pizza will be available shortly"})))
+      
 (defn cancel-pizza-handler [params]
   (let [id (:id (keywordize-keys params))]
     (if-not (nil? (get @orders (keyword id)))
         (do (swap! orders dissoc (keyword id))
             {:status 200
              :body "your order has been canceled"})
-
         {:status 200
          :body "your order does not exists"})))
 
 (defroutes handler
-  (POST "/order/pizza" {params :params} (order-pizza-handler params))
+  (POST "/order/:pizza" {{:nb nb} :params} (handle-order pizza (read-string nb)))
   (POST "/cancel/pizza" {params :params} (cancel-pizza-handler params))
 
   (route/not-found "<h1>Invalid route.</h1>"))
