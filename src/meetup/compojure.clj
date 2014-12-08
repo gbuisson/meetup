@@ -19,17 +19,17 @@
         (> nb max-count) {:status 503 :body "you ordered too many pizzas"}
         :else (do (swap! orders into {(keyword (str (java.util.UUID/randomUUID))) {:pizza pizza
                                                                                    :count nb}})
-                  {:status 200
-                   :body "your pizza will be available shortly"})))
+                {:status 200
+                 :body "your pizza will be available shortly"})))
 
 (defn cancel-pizza-handler [params]
   (let [id (:id (keywordize-keys params))]
     (if-not (nil? (get @orders (keyword id)))
-        (do (swap! orders dissoc (keyword id))
-            {:status 200
-             :body "your order has been canceled"})
+      (do (swap! orders dissoc (keyword id))
         {:status 200
-         :body "your order does not exists"})))
+         :body "your order has been canceled"})
+      {:status 200
+       :body "your order does not exists"})))
 
 (defroutes handler
   (POST "/order/:pizza" [pizza nb] (handle-order pizza (read-string nb)))
