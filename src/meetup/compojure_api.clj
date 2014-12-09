@@ -24,14 +24,14 @@
   {:type (s/enum :in-place :take-away)
    :pizzas [Pizza]
    :drinks [Drink]
-   :desserts [Desserts]})
+   :desserts [Dessert]})
 
 (defn place [order]
   (swap! orders into {(keyword (str (java.util.UUID/randomUUID))) order}) order)
 
 (defapi app
   (swagger-ui)
-  (swagger-docs :title "Chez Guillaume, pizza de qualité!!")
+  (swagger-docs :title "Guillaume & Yann's quality pizzas")
   (swaggered "Order"
              :description "Order operations"
              (context "/order" []
